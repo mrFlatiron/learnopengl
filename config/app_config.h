@@ -16,7 +16,8 @@ constexpr const char *RESOURCES_PATH = "/home/yozhek/learnopengl/resources/";
 static_assert (false, "\n"
                       "Define your own paths here and move this assert below them.\n"
                       "Guard it with your new macro. Write a following line to config_compilation.hack\n"
-                      "QMAKE_CXXFLAGS += -DYOUR_GUARD_MACRO\n");
+                      "QMAKE_CXXFLAGS += -DYOUR_GUARD_MACRO\n"
+                      "Than execute: git update-index --assume-unchanged ./config/config_compilation.hack\n");
 constexpr const char *SRC_PATH = "";
 constexpr const char *RESOURCES_PATH = "";
 #endif
