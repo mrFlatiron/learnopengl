@@ -28,6 +28,8 @@ unsigned int enum_to_gl_const (gl_texture_wrap_direction dir)
     case gl_texture_wrap_direction::top_bottom:
       return GL_TEXTURE_WRAP_T;
     }
+
+  ASSERT_RETURN (false, 0);
 }
 
 unsigned int enum_to_gl_const (gl_texture_wrap_method method)
@@ -43,6 +45,8 @@ unsigned int enum_to_gl_const (gl_texture_wrap_method method)
     case gl_texture_wrap_method::clamp_to_border:
       return GL_CLAMP_TO_BORDER;
     }
+
+  ASSERT_RETURN (false, 0);
 }
 
 unsigned int enum_to_gl_const (gl_texture_filter_type type)
@@ -54,4 +58,6 @@ unsigned int enum_to_gl_const (gl_texture_filter_type type)
     case gl_texture_filter_type::minification:
       return GL_TEXTURE_MIN_FILTER;
     }
+
+  ASSERT_RETURN (false, 0);
 }

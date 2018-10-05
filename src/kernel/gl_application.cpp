@@ -12,6 +12,8 @@
 
 gl_application::gl_application (int argc, char *argv[])
 {
+  FIX_UNUSED (argc, argv);
+
   m_init_ok = init_everything ();
 
   if (!m_init_ok)
@@ -52,7 +54,7 @@ bool gl_application::init_everything ()
 
 
 
-  put_in (m_main_window, m_ideal_frame_time);
+  put_in (m_main_window, false, m_ideal_frame_time);
 
 
   if (!m_main_window->gl_context ())
@@ -76,7 +78,9 @@ void gl_application::process_input ()
   while (auto events_count = SDL_PollEvent (&event))
     {
       if (events_count > 0)
-        m_main_window->process_event (event);
+        {
+          m_main_window->process_event (event, m_delta_time);
+        }
     }
 
 //  m_delta_time += chr::duration_cast<chr::milliseconds> (m_steady_clock.now () - start_event_handle_tp);
@@ -85,8 +89,9 @@ void gl_application::process_input ()
 void gl_application::render ()
 {
   auto render_start = m_steady_clock.now ();
+
   if (m_main_window->render (m_delta_time))
-    m_delta_time = chr::duration_cast<chr::milliseconds> (m_steady_clock.now () - render_start);
+    m_delta_time = m_steady_clock.now () - render_start;
   else
-    m_delta_time += chr::duration_cast<chr::milliseconds> (m_steady_clock.now () - m_start_iteration_tp);
+    m_delta_time += m_steady_clock.now () - m_start_iteration_tp;
 }

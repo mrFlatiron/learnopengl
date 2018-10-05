@@ -59,4 +59,31 @@ std::vector<K> container_keys (const C<K, V, Args...> &container)
 
   return retval;
 }
+
+struct uncopiable
+{
+  uncopiable () = default;
+  ~uncopiable () = default;
+  uncopiable (uncopiable &&) = default;
+  uncopiable &operator= (uncopiable &&) = default;
+
+  uncopiable (const uncopiable &) = delete;
+  uncopiable &operator= (const uncopiable &) = delete;
+
+
+};
+
+struct unmovable
+{
+  unmovable () = default;
+  ~unmovable () = default;
+  unmovable (const unmovable &rhs) = default;
+  unmovable &operator= (const unmovable &rhs) = default;
+
+  unmovable (unmovable &&) = delete;
+  unmovable &operator= (unmovable &&) = delete;
+
+
+};
+
 #endif // UTILS_H

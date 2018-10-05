@@ -59,8 +59,8 @@ std::string logger_interface::log_severity_prefix (log_severity sev) const
 
 std::string logger_interface::variadic_to_string (const char *format, va_list args)
 {
-  constexpr size_t initial_buf_size = 1024u;
-  constexpr int max_buf = 64 * 1024u;
+  constexpr int initial_buf_size = 1024;
+  constexpr int max_buf = 64 * initial_buf_size;
 
   std::string retval (initial_buf_size, 0);
 

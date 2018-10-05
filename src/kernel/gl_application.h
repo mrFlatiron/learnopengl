@@ -19,7 +19,7 @@ private:
 
   chr::milliseconds m_ideal_frame_time {16};
 
-  chr::milliseconds m_delta_time;
+  chr::nanoseconds  m_delta_time;
   chr::time_point<chr::steady_clock, chr::nanoseconds> m_start_iteration_tp;
   chr::steady_clock m_steady_clock;
 

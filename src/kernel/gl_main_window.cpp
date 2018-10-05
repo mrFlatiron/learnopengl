@@ -12,6 +12,9 @@
 #include "gl_utils/gl_textures_manager.h"
 #include "gl_utils/gl_texture.h"
 #include "gl_utils/gl_texture_filtering.h"
+#include "gl_utils/gl_scene_handler.h"
+//#include "gl_utils/gl_scene_model_guard.h"
+#include "gl_utils/gl_matrix_stacker.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -26,9 +29,11 @@ using std::literals::operator""s;
 constexpr const char *src_path = "/home/yozhek/learnopengl/src/";
 constexpr const char *res_path = "/home/yozhek/learnopengl/resources/";
 
-gl_main_window::gl_main_window (chr::milliseconds frame_time)
+gl_main_window::gl_main_window (bool limiting_framerate, chr::milliseconds frame_time)
   : m_frame_time (frame_time)
 {
+  m_limiting_framerate = limiting_framerate;
+
   m_native_handle = SDL_CreateWindow ("LearnOpenGL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_screen_width, m_screen_height,
                              SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP);
 
@@ -83,6 +88,10 @@ gl_main_window::gl_main_window (chr::milliseconds frame_time)
     }
 
   put_in (m_camera);
+  put_in (m_scene);
+
+  m_scene->projection_matrix () = glm::perspective (static_cast<float> (M_PI / 4), static_cast<float> (m_screen_width) / m_screen_height, 0.1f, 100.0f);
+
   m_cube_positions =
   {
     glm::vec3 (-5, -5, -5),
@@ -112,8 +121,10 @@ bool gl_main_window::can_be_closed () const
   return m_can_be_closed;
 }
 
-void gl_main_window::process_event (const SDL_Event &native_event)
+void gl_main_window::process_event (const SDL_Event &native_event, std::chrono::nanoseconds delta_time)
 {
+  FIX_UNUSED (delta_time);
+
   if (native_event.type == SDL_QUIT)
     m_can_be_closed = true;
 
@@ -125,12 +136,6 @@ void gl_main_window::process_event (const SDL_Event &native_event)
           m_screen_width = native_event.window.data1;
           m_screen_height = native_event.window.data2;
         }
-//      if (native_event.window.type == SDL_WINDOWEVENT_SHOWN)
-//        {
-//          glViewport (0, 0, native_event.window.data1, native_event.window.data2);
-//          m_screen_width = native_event.window.data1;
-//          m_screen_height = native_event.window.data2;
-//        }
     }
 
   if (native_event.type == SDL_KEYDOWN)
@@ -167,6 +172,9 @@ void gl_main_window::process_event (const SDL_Event &native_event)
       if (native_event.key.keysym.scancode == SDL_SCANCODE_D)
         m_d_pressed = false;
 
+      if (native_event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+        m_can_be_closed = true;
+
     }
 
   if (native_event.type == SDL_MOUSEMOTION)
@@ -178,9 +186,9 @@ void gl_main_window::process_event (const SDL_Event &native_event)
 
 }
 
-bool gl_main_window::render (chr::milliseconds delta_time)
+bool gl_main_window::render (chr::nanoseconds delta_time)
 {
-  float move_val = 0.001f * delta_time.count () * m_speed_sec;
+  float move_val = 0.001 * chr::duration_cast<chr::milliseconds> (delta_time).count () * m_speed_sec;
 
   bool effective_w = m_w_pressed && (!m_s_pressed);
   bool effective_s = m_s_pressed && (!m_w_pressed);
@@ -229,79 +237,99 @@ bool gl_main_window::render (chr::milliseconds delta_time)
   m_delta_phi = 0;
   m_delta_psi = 0;
 
+  m_scene->view_matrix () = m_camera->matrix ();
+
   m_shader_program->use ();
 
   glClearColor (1, 1, 1, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  glm::mat4 matrix;
+  {
+    gl_matrix_stacker stack (m_scene->model_matrix ());
 
-  glm::mat4 obj_matr (1.0f);
+    stack.mult_left (glm::scale (glm::mat4 (1), glm::vec3 (2, 2, 2)));
 
-  glm::mat4 world_matrix (1.0f);
-  world_matrix = glm::scale (world_matrix, glm::vec3 (2, 2, 2));
+    m_shader_program->set_uniform (m_matrix_loc, m_scene->result_matrix ());
+    m_shader_program->set_uniform (m_color_loc, vector<float> {1.0f, 1.0f, 1.0f});
 
-  glm::mat4 proj_matrix (1.0f);
-  proj_matrix = glm::perspective (static_cast<float> (M_PI / 4), static_cast<float> (m_screen_width) / m_screen_height, 0.1f, 100.0f);
+    glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
+  }
+
+  {
+    gl_matrix_stacker stack (m_scene->model_matrix ());
+
+    stack.
+        mult_left (glm::scale (glm::mat4 (1), glm::vec3 (1.0f / 5, 1.0f / 5, 1.0f / 5))).
+        mult_left (glm::translate (glm::mat4 (1.0f), glm::vec3 (-1.0f, -1.0f, -1.0f)));
+
+    m_shader_program->set_uniform (m_matrix_loc, m_scene->result_matrix ());
+    m_shader_program->set_uniform (m_color_loc,  vector<float> {0.0f, 0.0f, 0.0f});
+    glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
+  }
 
 
-  matrix =  proj_matrix  * m_camera->matrix () * world_matrix * obj_matr;
+  {
+    gl_matrix_stacker stack (m_scene->model_matrix ());
 
-  m_shader_program->set_uniform (m_matrix_loc, matrix);
-  m_shader_program->set_uniform (m_color_loc, vector<float> {1.0f, 1.0f, 1.0f});
+    stack.
+        mult_left (glm::scale (glm::mat4 (1), glm::vec3 (1.0f / 5, 1.0f / 5, 1.0f / 5))).
+        mult_left (glm::translate (glm::mat4 (1.0f), glm::vec3 (1.0f, -1.0f, -1.0f)));
 
-  glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
+    m_shader_program->set_uniform (m_matrix_loc, m_scene->result_matrix ());
+    m_shader_program->set_uniform (m_color_loc,  vector<float> {1.0f, 0.0f, 0.0f});
+    glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
+  }
 
-  obj_matr = glm::scale (obj_matr, glm::vec3 (1.0f / 10, 1.0f / 10, 1.0f / 10));
-  world_matrix = glm::translate (glm::mat4 (1.0f), glm::vec3 (-1.0f, -1.0f, -1.0f));
-  matrix = proj_matrix * m_camera->matrix () * world_matrix * obj_matr;
 
-  m_shader_program->set_uniform (m_matrix_loc, matrix);
-  m_shader_program->set_uniform (m_color_loc,  vector<float> {0.0f, 0.0f, 0.0f});
-  glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
+  {
+    gl_matrix_stacker stack (m_scene->model_matrix ());
 
-  world_matrix = glm::translate (glm::mat4 (1.0f), glm::vec3 (1.0f, -1.0f, -1.0f));
-  matrix = proj_matrix * m_camera->matrix () * world_matrix * obj_matr;
+    stack.
+        mult_left (glm::scale (glm::mat4 (1), glm::vec3 (1.0f / 5, 1.0f / 5, 1.0f / 5))).
+        mult_left (glm::translate (glm::mat4 (1.0f), glm::vec3 (-1.0f, 1.0f, -1.0f)));
 
-  m_shader_program->set_uniform (m_matrix_loc, matrix);
-  m_shader_program->set_uniform (m_color_loc,  vector<float> {1.0f, 0.0f, 0.0f});
-  glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
+    m_shader_program->set_uniform (m_matrix_loc, m_scene->result_matrix ());
+    m_shader_program->set_uniform (m_color_loc,  vector<float> {0, 1, 0});
+    glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
+  }
 
-  world_matrix = glm::translate (glm::mat4 (1.0f), glm::vec3 (-1.0f, 1.0f, -1.0f));
-  matrix = proj_matrix * m_camera->matrix () * world_matrix * obj_matr;
+  {
+    gl_matrix_stacker stack (m_scene->model_matrix ());
 
-  m_shader_program->set_uniform (m_matrix_loc, matrix);
-  m_shader_program->set_uniform (m_color_loc,  vector<float> {0, 1, 0});
-  glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
+    stack.
+        mult_left (glm::scale (glm::mat4 (1), glm::vec3 (1.0f / 5, 1.0f / 5, 1.0f / 5))).
+        mult_left (glm::translate (glm::mat4 (1.0f), glm::vec3 (-1.0f, -1.0f, 1.0f)));
 
-  world_matrix = glm::translate (glm::mat4 (1.0f), glm::vec3 (-1.0f, -1.0f, 1.0f));
-  matrix = proj_matrix * m_camera->matrix () * world_matrix * obj_matr;
-
-  m_shader_program->set_uniform (m_matrix_loc, matrix);
-  m_shader_program->set_uniform (m_color_loc,  vector<float> {0, 0, 1});
-  glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
-
-  obj_matr = glm::mat4 (1);
+    m_shader_program->set_uniform (m_matrix_loc, m_scene->result_matrix ());
+    m_shader_program->set_uniform (m_color_loc,  vector<float> {0, 0, 1});
+    glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
+  }
 
   m_shader_program->set_uniform (m_color_loc,  vector<float> {1, 1, 1});
 
   for (int i = 0; i < 8; i++)
     {
-      world_matrix = glm::translate (glm::mat4 (1.0f), m_cube_positions[i]);
-      matrix = proj_matrix * m_camera->matrix () * world_matrix * obj_matr;
+      gl_matrix_stacker stack (m_scene->model_matrix ());
+      stack.mult_left (glm::translate (glm::mat4 (1.0f), m_cube_positions[i]));
 
-      m_shader_program->set_uniform (m_matrix_loc, matrix);
+      m_shader_program->set_uniform (m_matrix_loc, m_scene->result_matrix ());
       glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
     }
 
-//  if (delta_time < m_frame_time)
-//    return false;
-//  else
-//    {
-      gl_logger.log_message ("frame time = %d, msecs", delta_time.count ());
+  if (m_limiting_framerate && delta_time < m_frame_time)
+    {
+//      frames_skipped++;
+//      gl_logger.log_message ("frames skipped = %d\n", frames_skipped);
+//      gl_logger.log_message ("delta time = %d", chr::duration_cast<chr::milliseconds> (delta_time).count ());
+      return false;
+    }
+  else
+    {
+//      frames_skipped = 0;
+//      gl_logger.log_message ("frame time = %d, msecs", chr::duration_cast<chr::milliseconds> (delta_time).count ());
       SDL_GL_SwapWindow (m_native_handle);
       return true;
-//    }
+    }
 }
 
 SDL_GLContext gl_main_window::gl_context ()

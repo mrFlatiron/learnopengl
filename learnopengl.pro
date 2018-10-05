@@ -9,7 +9,7 @@ LIBS += -lSDL2
 LIBS += -lGLEW
 LIBS += -lGL
 QMAKE_CXXFLAGS_DEBUG += -DDEBUG
-QMAKE_CXXFLAGS += -std=c++17
+QMAKE_CXXFLAGS += -Wall -Werror -std=c++17
 
 INCLUDEPATH += src
 
@@ -45,7 +45,10 @@ HEADERS += \
     src/kernel/logging/logger_interface.h \
     src/kernel/logging/stdout_logger.h \
     src/kernel/logging/dummy_logger.h \
-    src/kernel/gl_main_window.h
+    src/kernel/gl_main_window.h \
+    src/gl_utils/gl_scene_handler.h \
+    src/gl_utils/gl_scene_model_guard.h \
+    src/gl_utils/gl_matrix_stacker.h
 
 SOURCES += \
     src/3rd_party/stb_image_impl.cpp \
@@ -64,7 +67,10 @@ SOURCES += \
     src/kernel/logging/logger_interface.cpp \
     src/kernel/logging/stdout_logger.cpp \
     src/kernel/logging/dummy_logger.cpp \
-    src/kernel/gl_main_window.cpp
+    src/kernel/gl_main_window.cpp \
+    src/gl_utils/gl_scene_handler.cpp \
+    src/gl_utils/gl_scene_model_guard.cpp \
+    src/gl_utils/gl_matrix_stacker.cpp
 
 
 
