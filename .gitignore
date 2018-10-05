@@ -72,4 +72,4 @@ Thumbs.db
 *.exe
 
 # Compilation hack
-config_compilation.hack
+*config/config_compilation.hack
