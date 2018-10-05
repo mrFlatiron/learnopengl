@@ -186,9 +186,11 @@ void gl_main_window::process_event (const SDL_Event &native_event, std::chrono::
 
 }
 
-bool gl_main_window::render (chr::nanoseconds delta_time)
+void gl_main_window::render (chr::nanoseconds delta_time)
 {
-  float move_val = 0.001 * chr::duration_cast<chr::milliseconds> (delta_time).count () * m_speed_sec;
+  constexpr auto millisecond_div_second = static_cast<float> (1)  / chr::milliseconds::period::den;
+
+  float move_val = millisecond_div_second * chr::duration_cast<chr::milliseconds> (delta_time).count () * m_speed_sec;
 
   bool effective_w = m_w_pressed && (!m_s_pressed);
   bool effective_s = m_s_pressed && (!m_w_pressed);
@@ -316,20 +318,7 @@ bool gl_main_window::render (chr::nanoseconds delta_time)
       glDrawArrays (GL_TRIANGLES, 0, m_cube->layout ().vertex_count);
     }
 
-  if (m_limiting_framerate && delta_time < m_frame_time)
-    {
-//      frames_skipped++;
-//      gl_logger.log_message ("frames skipped = %d\n", frames_skipped);
-//      gl_logger.log_message ("delta time = %d", chr::duration_cast<chr::milliseconds> (delta_time).count ());
-      return false;
-    }
-  else
-    {
-//      frames_skipped = 0;
-//      gl_logger.log_message ("frame time = %d, msecs", chr::duration_cast<chr::milliseconds> (delta_time).count ());
-      SDL_GL_SwapWindow (m_native_handle);
-      return true;
-    }
+  SDL_GL_SwapWindow (m_native_handle);
 }
 
 SDL_GLContext gl_main_window::gl_context ()

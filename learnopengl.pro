@@ -19,13 +19,11 @@ DISTFILES += \
 
 HEADERS += \
     src/3rd_party/stb_image.h \
-    src/gl_utils/gl_camera.h \
     src/gl_utils/gl_headers.h \
     src/gl_utils/gl_polar_camera.h \
     src/gl_utils/gl_shader.h \
     src/gl_utils/gl_shader_program.h \
     src/gl_utils/gl_texture.h \
-    src/gl_utils/gl_textures_container.h \
     src/gold/enum/containers/enum_bitset.h \
     src/gold/enum/containers/enum_vector.h \
     src/gold/enum/enum_helper.h \
@@ -47,17 +45,14 @@ HEADERS += \
     src/kernel/logging/dummy_logger.h \
     src/kernel/gl_main_window.h \
     src/gl_utils/gl_scene_handler.h \
-    src/gl_utils/gl_scene_model_guard.h \
     src/gl_utils/gl_matrix_stacker.h
 
 SOURCES += \
     src/3rd_party/stb_image_impl.cpp \
-    src/gl_utils/gl_camera.cpp \
     src/gl_utils/gl_polar_camera.cpp \
     src/gl_utils/gl_shader.cpp \
     src/gl_utils/gl_shader_program.cpp \
     src/gl_utils/gl_texture.cpp \
-    src/gl_utils/gl_textures_container.cpp \
     src/main/main.cpp \
     src/gl_utils/gl_texture_filtering.cpp \
     src/gl_utils/gl_textures_manager.cpp \
@@ -69,7 +64,6 @@ SOURCES += \
     src/kernel/logging/dummy_logger.cpp \
     src/kernel/gl_main_window.cpp \
     src/gl_utils/gl_scene_handler.cpp \
-    src/gl_utils/gl_scene_model_guard.cpp \
     src/gl_utils/gl_matrix_stacker.cpp
 
 

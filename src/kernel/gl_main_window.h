@@ -23,7 +23,7 @@ public:
 
   bool can_be_closed () const;
   void process_event (const SDL_Event &native_event, chr::nanoseconds delta_time);
-  bool render (std::chrono::nanoseconds delta_time);
+  void render (std::chrono::nanoseconds delta_time);
 private:
   SDL_Window *m_native_handle = nullptr;
   SDL_GLContext m_gl_context = nullptr;

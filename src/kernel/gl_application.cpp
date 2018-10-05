@@ -90,8 +90,13 @@ void gl_application::render ()
 {
   auto render_start = m_steady_clock.now ();
 
-  if (m_main_window->render (m_delta_time))
-    m_delta_time = m_steady_clock.now () - render_start;
-  else
-    m_delta_time += m_steady_clock.now () - m_start_iteration_tp;
+  if (m_limit_frame_rate && m_delta_time < m_ideal_frame_time)
+    {
+      m_delta_time += m_steady_clock.now () - m_start_iteration_tp;
+      return;
+    }
+
+  m_main_window->render (m_delta_time);
+  m_delta_time = m_steady_clock.now () - render_start;
+
 }

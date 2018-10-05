@@ -17,8 +17,8 @@ private:
   bool m_init_ok = false;
   bool m_exit_required = false;
 
+  bool m_limit_frame_rate = true;
   chr::milliseconds m_ideal_frame_time {16};
-
   chr::nanoseconds  m_delta_time;
   chr::time_point<chr::steady_clock, chr::nanoseconds> m_start_iteration_tp;
   chr::steady_clock m_steady_clock;
