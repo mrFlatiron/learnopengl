@@ -54,7 +54,7 @@ bool gl_application::init_everything ()
 
 
 
-  put_in (m_main_window, false, m_ideal_frame_time);
+  put_in (m_main_window);
 
 
   if (!m_main_window->gl_context ())

@@ -13,7 +13,6 @@
 #include "gl_utils/gl_texture.h"
 #include "gl_utils/gl_texture_filtering.h"
 #include "gl_utils/gl_scene_handler.h"
-//#include "gl_utils/gl_scene_model_guard.h"
 #include "gl_utils/gl_matrix_stacker.h"
 
 #include <glm/glm.hpp>
@@ -23,17 +22,12 @@
 #include "3rd_party/stb_image.h"
 
 #include "gold/utils.h"
+#include "config/app_config.h"
 
 using std::literals::operator""s;
 
-constexpr const char *src_path = "/home/yozhek/learnopengl/src/";
-constexpr const char *res_path = "/home/yozhek/learnopengl/resources/";
-
-gl_main_window::gl_main_window (bool limiting_framerate, chr::milliseconds frame_time)
-  : m_frame_time (frame_time)
+gl_main_window::gl_main_window ()
 {
-  m_limiting_framerate = limiting_framerate;
-
   m_native_handle = SDL_CreateWindow ("LearnOpenGL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_screen_width, m_screen_height,
                              SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP);
 
@@ -328,10 +322,10 @@ SDL_GLContext gl_main_window::gl_context ()
 
 bool gl_main_window::load_resources ()
 {
-  put_in (m_vertex_shader, gl_shader::read_shader_src (src_path + "shaders/vertex_shader.vs"s),
+  put_in (m_vertex_shader, gl_shader::read_shader_src (app_config::SRC_PATH + "shaders/vertex_shader.vs"s),
                                   gl_shader_type::vertex);
 
-  put_in (m_fragment_shader, gl_shader::read_shader_src (src_path + "shaders/frag_shader.fs"s),
+  put_in (m_fragment_shader, gl_shader::read_shader_src (app_config::SRC_PATH + "shaders/frag_shader.fs"s),
                                     gl_shader_type::fragment);
 
   if (!m_vertex_shader->is_ok ())
@@ -359,7 +353,7 @@ bool gl_main_window::load_resources ()
 
 
   int x, y, channels;
-  auto container_data = stbi_load ((res_path + "container.jpg"s).c_str (), &x, &y, &channels, 0);
+  auto container_data = stbi_load ((app_config::RESOURCES_PATH + "container.jpg"s).c_str (), &x, &y, &channels, 0);
   if (!container_data)
     {
       fprintf (stderr, "Image is not loaded\n");
@@ -391,7 +385,7 @@ bool gl_main_window::load_resources ()
 
   stbi_image_free(container_data);
 
-  auto face_data = stbi_load ((res_path + "awesomeface.png"s).c_str (), &x, &y, &channels, 0);
+  auto face_data = stbi_load ((app_config::RESOURCES_PATH + "awesomeface.png"s).c_str (), &x, &y, &channels, 0);
   if (!face_data)
     {
       fprintf (stderr, "Image is not loaded\n");

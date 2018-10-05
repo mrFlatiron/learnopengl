@@ -18,7 +18,7 @@ class gl_main_window
 {
   friend class gl_application;
 public:
-  gl_main_window (bool limiting_framerate, chr::milliseconds frame_time = chr::milliseconds {17});
+  gl_main_window ();
   ~gl_main_window ();
 
   bool can_be_closed () const;
@@ -30,8 +30,6 @@ private:
 
   int m_screen_width = 1200;
   int m_screen_height = 800;
-  bool m_limiting_framerate = false;
-  chr::milliseconds m_frame_time;
 
   float m_mouse_sensetivity = 0.01;
   float m_speed_sec = 5;

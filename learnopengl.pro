@@ -8,14 +8,18 @@ PRECOMPILED_HEADER = src/precompiled/precompiled_header.h
 LIBS += -lSDL2
 LIBS += -lGLEW
 LIBS += -lGL
+
 QMAKE_CXXFLAGS_DEBUG += -DDEBUG
 QMAKE_CXXFLAGS += -Wall -Werror -std=c++17
+
+include (config/config_compilation.hack)
 
 INCLUDEPATH += src
 
 DISTFILES += \
     src/shaders/frag_shader.fs \
-    src/shaders/vertex_shader.vs
+    src/shaders/vertex_shader.vs \
+    config/config_compilation.hack
 
 HEADERS += \
     src/3rd_party/stb_image.h \
@@ -45,7 +49,8 @@ HEADERS += \
     src/kernel/logging/dummy_logger.h \
     src/kernel/gl_main_window.h \
     src/gl_utils/gl_scene_handler.h \
-    src/gl_utils/gl_matrix_stacker.h
+    src/gl_utils/gl_matrix_stacker.h \
+    config/app_config.h
 
 SOURCES += \
     src/3rd_party/stb_image_impl.cpp \
