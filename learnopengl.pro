@@ -12,13 +12,14 @@ LIBS += -lGL
 QMAKE_CXXFLAGS_DEBUG += -DDEBUG
 QMAKE_CXXFLAGS += -Wall -Werror -std=c++17
 
-#include (config/config_compilation.hack)
+include (config/config_compilation.hack)
 
 INCLUDEPATH += src
 
 DISTFILES += \
     src/shaders/frag_shader.fs \
-    src/shaders/vertex_shader.vs
+    src/shaders/vertex_shader.vs \
+    config/config_compilation.hack
 
 HEADERS += \
     src/3rd_party/stb_image.h \
