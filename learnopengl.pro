@@ -50,7 +50,18 @@ HEADERS += \
     src/kernel/gl_main_window.h \
     src/gl_utils/gl_scene_handler.h \
     src/gl_utils/gl_matrix_stacker.h \
-    config/app_config.h
+    config/app_config.h \
+    src/kernel/ECS/entity_fwd.h \
+    src/kernel/ECS/entities_container.h \
+    src/kernel/ECS/object_bounding_area.h \
+    src/kernel/physics/velocity.h \
+    src/kernel/physics/rotation.h \
+    src/kernel/physics/mass_center.h \
+    src/kernel/physics/primitives_3d.h \
+    src/kernel/physics/impact_result.h \
+    src/kernel/physics/collisions.h \
+    src/kernel/math/math.h \
+    src/kernel/ECS/physical_props.h
 
 SOURCES += \
     src/3rd_party/stb_image_impl.cpp \
@@ -69,7 +80,16 @@ SOURCES += \
     src/kernel/logging/dummy_logger.cpp \
     src/kernel/gl_main_window.cpp \
     src/gl_utils/gl_scene_handler.cpp \
-    src/gl_utils/gl_matrix_stacker.cpp
+    src/gl_utils/gl_matrix_stacker.cpp \
+    src/kernel/ECS/entities_container.cpp \
+    src/kernel/ECS/object_bounding_area.cpp \
+    src/kernel/physics/velocity.cpp \
+    src/kernel/physics/rotation.cpp \
+    src/kernel/physics/mass_center.cpp \
+    src/kernel/physics/primitives_3d.cpp \
+    src/kernel/physics/impact_result.cpp \
+    src/kernel/physics/collisions.cpp \
+    src/kernel/ECS/physical_props.cpp
 
 
 

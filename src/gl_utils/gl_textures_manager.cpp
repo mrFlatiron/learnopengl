@@ -27,7 +27,7 @@ gl_texture_id gl_textures_manager::create_texture ()
       return {};
     }
 
-  gl_texture_id new_id (static_cast<int64_t> (gl_id));
+  gl_texture_id new_id = gl_texture_id::from_underlying (gl_id);
 
   m_textures.emplace (new_id, std::make_unique<gl_texture> (new_id));
 
